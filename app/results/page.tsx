@@ -163,27 +163,40 @@ export default function ResultsPage() {
                       const isUserAnswer = option === answer.userAnswer;
                       const isCorrectAnswer = option === answer.question.correctAnswer;
                       const isWrongAnswer = isUserAnswer && !isCorrectAnswer;
- 
+
                       return (
-                        <div
-                          key={optionIndex}
-                          className={`p-3 rounded-lg border-2 text-sm ${
-                            isCorrectAnswer
-                              ? 'bg-green-100 border-green-400 text-green-900 font-semibold'
-                              : isWrongAnswer
-                              ? 'bg-red-100 border-red-400 text-red-900 font-semibold'
-                              : 'bg-slate-100 border-slate-200 text-slate-700'
-                          }`}
-                        >
-                          <div className="flex items-center gap-2">
-                            {isCorrectAnswer && <span className="text-lg">✓</span>}
-                            {isWrongAnswer && <span className="text-lg">✗</span>}
-                            <span>
-                              {option}
-                              {isCorrectAnswer && ' (Correct Answer)'}
-                              {isWrongAnswer && ' (Your Answer)'}
-                            </span>
+                        <div key={optionIndex}>
+                          {/* Main Option Box */}
+                          <div
+                            className={`p-3 rounded-lg border-2 text-sm ${
+                              isCorrectAnswer
+                                ? 'bg-green-100 border-green-400 text-green-900 font-semibold'
+                                : isWrongAnswer
+                                ? 'bg-red-100 border-red-400 text-red-900 font-semibold'
+                                : 'bg-slate-100 border-slate-200 text-slate-700'
+                            }`}
+                          >
+                            <div className="flex items-center gap-2">
+                              {isCorrectAnswer && <span className="text-lg">✓</span>}
+                              {isWrongAnswer && <span className="text-lg">✗</span>}
+                              <span>
+                                {option}
+                                {isCorrectAnswer && ' (Correct Answer)'}
+                                {isWrongAnswer && ' (Your Answer)'}
+                              </span>
+                            </div>
                           </div>
+
+                          {/* 🆕 NEW: Explanation shown ONLY for correct answer 🆕 */}
+                          {isCorrectAnswer && answer.question.explanation && (
+                            <div className="mt-2 p-3 bg-blue-50 border-l-4 border-blue-500 rounded">
+                              <p className="text-sm font-semibold text-blue-900 mb-2">💡 Why this is correct:</p>
+                              <p className="text-sm text-blue-800 leading-relaxed">
+                                {answer.question.explanation}
+                              </p>
+                            </div>
+                          )}
+                          {/* 🆕 END NEW SECTION 🆕 */}
                         </div>
                       );
                     })}
@@ -191,6 +204,7 @@ export default function ResultsPage() {
                 </div>
               </Card>
             ))}
+
           </div>
         </div>
  

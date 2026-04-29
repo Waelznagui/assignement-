@@ -64,13 +64,26 @@ function parseQuizResponse(content: string, expectedCount: number): QuizQuestion
         throw new Error(`Question ${idx + 1}: missing 'correctAnswer' field`);
       }
 
+      // ✅ NEW: Check for explanation field
+      if (typeof question.explanation !== "string") {
+        throw new Error(`Question ${idx + 1}: missing 'explanation' field`);
+      }
+
       const correctAnswer = String(question.correctAnswer);
       const options = question.options.map(String);
+      const explanation = String(question.explanation);
 
-      // ✅ NEW: Verify correctAnswer is one of the options
+      // ✅ Verify correctAnswer is one of the options
       if (!options.includes(correctAnswer)) {
         throw new Error(
           `Question ${idx + 1}: correctAnswer "${correctAnswer}" must be one of the options`
+        );
+      }
+
+      // ✅ NEW: Verify explanation is not empty
+      if (explanation.trim().length === 0) {
+        throw new Error(
+          `Question ${idx + 1}: explanation cannot be empty`
         );
       }
 
@@ -79,6 +92,7 @@ function parseQuizResponse(content: string, expectedCount: number): QuizQuestion
         question: String(question.question),
         options,
         correctAnswer,
+        explanation,  // ← ADD THIS
       };
     });
 
@@ -95,7 +109,7 @@ export async function POST(request: NextRequest) {
     const { topic, numberOfQuestions } = validatePayload(body);
 
     // Craft the prompt for AI
-    const prompt = `You are an expert quiz generator. Generate exactly ${numberOfQuestions} multiple-choice questions about "${topic}".
+   const prompt = `You are an expert quiz generator. Generate exactly ${numberOfQuestions} multiple-choice questions about "${topic}".
 
 IMPORTANT: You MUST respond with ONLY a valid JSON object in this exact format:
 {
@@ -103,21 +117,22 @@ IMPORTANT: You MUST respond with ONLY a valid JSON object in this exact format:
     {
       "question": "What is...",
       "options": ["Option A", "Option B", "Option C", "Option D"],
-      "correctAnswer": "Option A"
+      "correctAnswer": "Option A",
+      "explanation": "This is correct because... (1-2 sentences explaining why)"
     }
   ]
 }
 
 Requirements:
 - Each question must have exactly 4 options
-- The correctAnswer must be one of the options
-- Include just one correctAnswer per question
+- The correctAnswer must be one of the options exactly as written in the options array
+- Include exactly one explanation per question
+- Explanation should be 1-2 sentences explaining WHY the answer is correct
 - Questions should be educational and test understanding
 - Vary difficulty levels
-
-
-Do not include any text outside the JSON. Do not use markdown code blocks.`;
-
+- Do NOT include any text outside the JSON
+- Do NOT use markdown code blocks
+- Explanation must be a string, not an object`;
     // Call Groq API
     const groqResponse = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",

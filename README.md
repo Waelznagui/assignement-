@@ -85,12 +85,7 @@ public/                   # Static assets
 ✅ Responsive design for all devices  
 ✅ Real-time loading states and error handling  
 
-## Deployment
 
-Deploy to Vercel with a single command:
-```bash
-npx vercel
-```
 
 Remember to add your `GROQ_API_KEY` in Vercel's environment variables.
 
